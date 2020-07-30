@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Eat out to help out map</title>
+
+    <script src='https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.css' rel='stylesheet'/>
+
+    <style>
+        #postcode-form {
+            margin-bottom: 20px;
+        }
+
+        #map {
+            height: 800px;
+        }
+    </style>
+
+</head>
+<body>
+
+<div id="container">
+    <div id="postcode-form">
+        <label>
+            Postcode: <input type="text" id="postcode-input">
+        </label>
+        <button id="submit-postcode">Search</button>
+    </div>
+    <div id='map'></div>
+</div>
+
+
+<script>
+    let lat = 51.5080, lon = -0.1281
+
+    mapboxgl.accessToken = 'pk.eyJ1IjoibWFya2R1bm5lIiwiYSI6ImNrZDc3ZWpvNDAzMXYycm1zMGM3OHZkeXUifQ.ZC8iuo1dgbVYvG7qankfuQ';
+    var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [-0.1281, 51.5080],
+        zoom: 15,
+        minZoom: 10,
+        maxZoom: 20
+    });
+    map.addControl(new mapboxgl.NavigationControl());
+    map.on('moveend', evt => {
+        console.log('Loading new restaurants')
+        let center = map.getCenter();
+        fetch(`https://api.postcodes.io/postcodes?lon=${center.lng}&lat=${center.lat}`).then(response => response.json()).then(data => {
+            let postcode = data.result[0].postcode
+            return fetch(`/restaurants?postcode=${postcode}`)
+        }).then(response => response.json()).then(data => {
+            for (let restaurant of data) {
+                if ('lng' in restaurant && 'lat' in restaurant) {
+
+                    let marker = (new mapboxgl.Marker()
+                        .setLngLat([restaurant.lng, restaurant.lat])
+                        .setPopup(new mapboxgl.Popup({offset: 25})
+                            .setHTML('<p>' + restaurant.name + '</p>'))
+                        .addTo(map));
+                }
+            }
+        })
+    })
+
+    document.getElementById('submit-postcode').addEventListener('click', event => {
+        let postcode = document.getElementById('postcode-input').value
+        fetch(`https://api.postcodes.io/postcodes/${postcode}`).then(response => response.json()).then(data => {
+            map.setCenter([data.result.longitude, data.result.latitude])
+        })
+    })
+
+</script>
+</body>
+</html>
