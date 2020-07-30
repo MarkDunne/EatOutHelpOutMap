@@ -39,7 +39,7 @@ substitutions:
   _LABELS: gcb-trigger-id=0ead2d82-cdc7-458b-b315-775cfb70b564
   _TRIGGER_ID: 0ead2d82-cdc7-458b-b315-775cfb70b564
   _DEPLOY_REGION: europe-west1
-  _PORT: 8000
+  _PORT: "8000"
 tags:
   - gcp-cloud-build-deploy-cloud-run
   - gcp-cloud-build-deploy-cloud-run-managed
