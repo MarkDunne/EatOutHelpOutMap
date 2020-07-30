@@ -3,8 +3,13 @@
 <head>
     <title>Eat out to help out map</title>
 
-    <script src='https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.js'></script>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.css' rel='stylesheet'/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+          integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+          crossorigin=""/>
+
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+            integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+            crossorigin=""></script>
 
     <style>
         #postcode-form {
@@ -31,33 +36,30 @@
 
 
 <script>
+    let restaurant_set = new Set()
     let lat = 51.5080, lon = -0.1281
 
-    mapboxgl.accessToken = 'pk.eyJ1IjoibWFya2R1bm5lIiwiYSI6ImNrZDc3ZWpvNDAzMXYycm1zMGM3OHZkeXUifQ.ZC8iuo1dgbVYvG7qankfuQ';
-    var map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v11',
-        center: [-0.1281, 51.5080],
-        zoom: 15,
-        minZoom: 10,
-        maxZoom: 20
-    });
-    map.addControl(new mapboxgl.NavigationControl());
+    let map = L.map('map', {
+        minZoom: 12,
+        maxZoom: 19
+    }).setView([lat, lon], 16);
+    var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
     map.on('moveend', evt => {
         console.log('Loading new restaurants')
         let center = map.getCenter();
-        fetch(`https://api.postcodes.io/postcodes?lon=${center.lng}&lat=${center.lat}`).then(response => response.json()).then(data => {
-            let postcode = data.result[0].postcode
-            return fetch(`/restaurants?postcode=${postcode}`)
-        }).then(response => response.json()).then(data => {
+
+        fetch(`/restaurants?longitude=${center.lng}&latitude=${center.lat}`).then(response => response.json()).then(data => {
             for (let restaurant of data) {
                 if ('lng' in restaurant && 'lat' in restaurant) {
-
-                    let marker = (new mapboxgl.Marker()
-                        .setLngLat([restaurant.lng, restaurant.lat])
-                        .setPopup(new mapboxgl.Popup({offset: 25})
-                            .setHTML('<p>' + restaurant.name + '</p>'))
-                        .addTo(map));
+                    let restaurant_key = JSON.stringify(restaurant)
+                    if (!restaurant_set.has(restaurant_key)) {
+                        restaurant_set.add(restaurant_key)
+                        let marker = L.marker([restaurant.lat, restaurant.lng]).addTo(map);
+                        marker.bindPopup(restaurant.Name)
+                    }
                 }
             }
         })
@@ -66,9 +68,11 @@
     document.getElementById('submit-postcode').addEventListener('click', event => {
         let postcode = document.getElementById('postcode-input').value
         fetch(`https://api.postcodes.io/postcodes/${postcode}`).then(response => response.json()).then(data => {
-            map.setCenter([data.result.longitude, data.result.latitude])
+            map.panTo(new L.LatLng(data.result.latitude, data.result.longitude));
         })
     })
+
+    map.fire('moveend')
 
 </script>
 </body>
