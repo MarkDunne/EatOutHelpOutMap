@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from fastapi import FastAPI, Request
 from fastapi.security import HTTPBasic
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 app = FastAPI()
@@ -10,6 +11,7 @@ security = HTTPBasic()
 postcode_lookup = dict()
 
 templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 restaurant_data = pd.read_csv('data/restaurants.processed.csv')
 
