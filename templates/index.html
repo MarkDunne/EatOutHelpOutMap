@@ -14,6 +14,8 @@
             integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
             crossorigin=""></script>
 
+    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/pure-min.css" integrity="sha384-cg6SkqEOCV1NbJoCu11+bm0NvBRc8IYLRGXkmNrqUBfTjmMYwNKPWBTIKyw9mHNJ" crossorigin="anonymous">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 
     <style>
@@ -35,7 +37,7 @@
 
         #map {
             width: 100%;
-            height: 800px;
+            height: 75vh;
         }
 
         #banner {
@@ -48,7 +50,7 @@
             margin-bottom: 20px;
         }
 
-        #banner img{
+        #banner img {
             width: 8rem;
             margin-right: 20px;
         }
@@ -62,14 +64,15 @@
         <img src="{{ url_for('static', path='/imgs/logo.png') }}">
         <h1>Eat Out to Help Out map</h1>
     </div>
-    <div id="postcode-form">
-        <label>
-            Postcode: <input type="text" id="postcode-input">
+    <div id="postcode-form" class="pure-form">
+        <label for="postcode-input">
+            Postcode: <input type="text" id="postcode-input" placeholder="SW1A 1AA">
         </label>
-        <button id="submit-postcode">Search</button>
+        <button id="submit-postcode" class="pure-button pure-button-primary">Search</button>
     </div>
-    <div id='map'></div>
     <p><a href="https://www.gov.uk/guidance/get-a-discount-with-the-eat-out-to-help-out-scheme">Learn more about the Eat Out to Help Out Scheme</a></p>
+    <div id='map'></div>
+    <p>This is not an official source of information.</p>
 </div>
 
 
