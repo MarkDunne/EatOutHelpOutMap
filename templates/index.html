@@ -80,16 +80,20 @@
 
 <script>
     let restaurant_set = new Set()
-    let lat = 51.5080, lon = -0.1281
 
     let map = L.map('map', {
         minZoom: 5,
         maxZoom: 19
-    }).setView([lat, lon], 16);
-    var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+    }).setView(
+        [51.5080, -0.1281], 16
+    ).locate(
+        {setView: true, maxZoom: 16}
+    ).addLayer(
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        })
+    );
     map.on('moveend', evt => {
         console.log('Loading new restaurants')
         let center = map.getCenter();
@@ -107,15 +111,13 @@
             }
         })
     })
-
+    map.fire('moveend');
     document.getElementById('submit-postcode').addEventListener('click', event => {
         let postcode = document.getElementById('postcode-input').value
         fetch(`https://api.postcodes.io/postcodes/${postcode}`).then(response => response.json()).then(data => {
             map.panTo(new L.LatLng(data.result.latitude, data.result.longitude));
         })
     })
-
-    map.fire('moveend')
 
 </script>
 </body>
